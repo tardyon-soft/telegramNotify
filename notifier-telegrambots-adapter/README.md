@@ -1,18 +1,21 @@
 # notifier-telegrambots-adapter
 
-Telegram outbound adapter:
+Адаптер отправки сообщений в Telegram через библиотеку `telegrambots`.
 
+Основной класс:
 - `DefaultTelegramSender implements TelegramSender`
-- creates `DefaultAbsSender` from `NotifierConfig.botToken()`
-- maps parse modes:
-  - `PLAIN` -> none
+
+Поведение:
+- создает `DefaultAbsSender` на основе `NotifierConfig.botToken()`
+- формирует `SendMessage` и отправляет только исходящие сообщения (outbound-only)
+- применяет `parseMode`:
+  - `PLAIN` -> без parse mode
   - `HTML` -> `HTML`
   - `MARKDOWN` -> `Markdown`
   - `MARKDOWN_V2` -> `MarkdownV2`
-- applies `disableWebPagePreview`
-- wraps `TelegramApiException` into `TelegramSendException`
-- `sendMany()` iterates over chat IDs
+- применяет `disableWebPagePreview`
+- оборачивает `TelegramApiException` в `TelegramSendException`
+- `sendMany()` отправляет в цикле по всем chat id
 
-Testability:
-
-- second constructor accepts injected sender executor, so tests can run without real Telegram network calls.
+Для тестов:
+- есть дополнительный конструктор с подменяемым `DefaultAbsSender`, поэтому можно тестировать без сети и без реального Telegram API.

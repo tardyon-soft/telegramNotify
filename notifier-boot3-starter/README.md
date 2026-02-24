@@ -1,47 +1,44 @@
 # notifier-boot3-starter
 
-Auto-configuration starter for Spring Boot `3.4.x` (Java 21).
+Стартер автоконфигурации для Spring Boot `3.4.x` (Java `21`).
 
-Published artifact:
+Публикуемый артефакт:
+- `ru.wildred:telegram-notifier-boot3-starter`
 
-- `ru.tardyon:telegram-notifier-boot3-starter`
+Особенности Boot 3:
+- использует `@AutoConfiguration`
+- регистрация через ресурс  
+  `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`
 
-Uses `@AutoConfiguration` and resource:
+Поднимаемые компоненты:
+- `TelegramNotifierProperties`, `TelegramNotifierEnabledCondition`, `Boot3NotifierConfigAdapter`
+- `TemplateEngine` (SpEL)
+- `TelegramSender`, `TelegramNotificationDispatcher`
+- `TelegramNotifyAspect`
 
-- `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`
+Условия активации:
+- `telegram.notifier.enabled=true` (или отсутствует)
+- заполнены `token`, `username`, `chat-ids`
 
-Includes same runtime components as Boot2 starter:
+Поддерживаемые форматы конфигурации:
+- плоский (`token`, `username`, `chat-ids`, `async-enabled`)
+- вложенный (`bot.token`, `bot.username`, `targets.chat-ids`, `async.enabled`)
 
-- properties, condition, config adapter
-- SpEL template engine
-- telegram sender and dispatcher
-- AOP aspect
-
-Activation conditions are the same (`enabled + token + username + chat-ids`).
-
-Example config:
+Рекомендуемый пример:
 
 ```yaml
 telegram:
   notifier:
     enabled: true
-    token: ${TELEGRAM_BOT_TOKEN:}
-    username: ${TELEGRAM_BOT_USERNAME:}
-    chat-ids: ${TELEGRAM_CHAT_ID:}
-    parse-mode: MARKDOWN_V2
+    bot:
+      token: ${TELEGRAM_BOT_TOKEN:}
+      username: ${TELEGRAM_BOT_USERNAME:}
+    targets:
+      chat-ids:
+        - ${TELEGRAM_CHAT_ID:}
+    parse-mode: HTML
+    disable-web-page-preview: true
     error-policy: LOG_ONLY
-    async-enabled: true
-```
-
-Typical annotation usage:
-
-```java
-@TelegramNotify(
-    message = "'Job done: ' + #methodName + ', result=' + #result",
-    condition = "#result != null",
-    when = NotifyWhen.AFTER_SUCCESS
-)
-public String runJob() {
-    return "OK";
-}
+    async:
+      enabled: true
 ```

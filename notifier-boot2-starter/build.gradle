@@ -6,6 +6,12 @@ base {
     archivesName = 'telegram-notifier-boot2-starter'
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
 dependencies {
     compileOnly project(':notifier-core')
     compileOnly project(':notifier-template-spel')

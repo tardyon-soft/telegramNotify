@@ -1,40 +1,64 @@
 # telegram-notifier
 
-Telegram notification library for Spring with two published starter artifacts:
+Библиотека для отправки уведомлений в Telegram через аннотации в Spring.
 
-- `ru.tardyon:telegram-notifier-boot2-starter` (Spring Boot `2.3.x`, Java `11`)
-- `ru.tardyon:telegram-notifier-boot3-starter` (Spring Boot `3.4.x`, Java `21`)
+Публикуемые артефакты:
+- `ru.wildred:telegram-notifier-boot2-starter` (Spring Boot `2.3.x`, Java `11`)
+- `ru.wildred:telegram-notifier-boot3-starter` (Spring Boot `3.4.x`, Java `21`)
 
-Internal modules (`core`, `spel`, `spring-aop`, `telegrambots-adapter`) are bundled inside starter JARs.
+Внутренние модули (`core`, `spel`, `spring-aop`, `telegrambots-adapter`) встраиваются внутрь starter JAR.
 
-## Module Structure
+## Структура
 
-- `notifier-core` - API contracts, annotations, dispatcher, config interfaces.
-- `notifier-template-spel` - `TemplateEngine` implementation based on Spring SpEL.
-- `notifier-spring-aop` - `@TelegramNotify` aspect integration.
-- `notifier-telegrambots-adapter` - outbound Telegram sender adapter.
-- `notifier-boot2-starter` - Spring Boot 2 auto-configuration.
-- `notifier-boot3-starter` - Spring Boot 3 auto-configuration.
-- `sample-boot2-app` - runnable sample for Boot 2.
-- `sample-boot3-app` - runnable sample for Boot 3.
+- `notifier-core` - API, аннотации, dispatcher, контракты конфигурации.
+- `notifier-template-spel` - шаблонизатор на Spring SpEL.
+- `notifier-spring-aop` - аспект `@TelegramNotify`.
+- `notifier-telegrambots-adapter` - адаптер отправки через `telegrambots`.
+- `notifier-boot2-starter` - автоконфигурация для Boot 2.
+- `notifier-boot3-starter` - автоконфигурация для Boot 3.
+- `sample-boot2-app` - пример приложения Boot 2.
+- `sample-boot3-app` - пример приложения Boot 3.
 
-## Quick Start
+## Быстрый старт
 
-### 1) Add dependency
+### 1. Подключить зависимость
 
 Boot 2:
 
 ```groovy
-implementation "ru.tardyon:telegram-notifier-boot2-starter:<version>"
+implementation "ru.wildred:telegram-notifier-boot2-starter:<version>"
 ```
 
 Boot 3:
 
 ```groovy
-implementation "ru.tardyon:telegram-notifier-boot3-starter:<version>"
+implementation "ru.wildred:telegram-notifier-boot3-starter:<version>"
 ```
 
-### 2) Configure application
+### 2. Настроить `application.yml`
+
+Поддерживаются оба формата конфигурации.
+
+Рекомендуемый вложенный формат:
+
+```yaml
+telegram:
+  notifier:
+    enabled: true
+    bot:
+      token: ${TELEGRAM_BOT_TOKEN:}
+      username: ${TELEGRAM_BOT_USERNAME:}
+    targets:
+      chat-ids:
+        - ${TELEGRAM_CHAT_ID:}
+    parse-mode: HTML
+    disable-web-page-preview: true
+    async:
+      enabled: true
+    error-policy: LOG_ONLY
+```
+
+Также поддерживается плоский формат:
 
 ```yaml
 telegram:
@@ -43,27 +67,25 @@ telegram:
     token: ${TELEGRAM_BOT_TOKEN:}
     username: ${TELEGRAM_BOT_USERNAME:}
     chat-ids: ${TELEGRAM_CHAT_ID:}
-    parse-mode: HTML
-    disable-web-page-preview: true
+    async-enabled: true
 ```
 
-Required env vars:
+Обязательные параметры для активации авто-конфигурации:
+- `token`
+- `username`
+- `chat-ids`
 
-- `TELEGRAM_BOT_TOKEN`
-- `TELEGRAM_BOT_USERNAME`
-- `TELEGRAM_CHAT_ID`
+Если хотя бы один из них пустой, notifier отключается condition-ом.
 
-If `token`, `username`, or `chat-ids` are empty, auto-configuration is disabled by condition.
-
-### 3) Annotate service methods
+### 3. Поставить аннотацию на метод
 
 ```java
 @Service
 public class OrderService {
     @TelegramNotify(
-        message = "'Order ' + #orderId + ' processed, result=' + #result",
-        condition = "#result != null",
-        when = NotifyWhen.AFTER_SUCCESS
+            message = "'Заказ ' + #orderId + ' обработан, result=' + #result",
+            condition = "#result != null",
+            when = NotifyWhen.AFTER_SUCCESS
     )
     public String processOrder(String orderId) {
         return "OK";
@@ -71,52 +93,42 @@ public class OrderService {
 }
 ```
 
-Supported `NotifyWhen` modes:
-
+Режимы `NotifyWhen`:
 - `BEFORE`
 - `AFTER_SUCCESS`
 - `AFTER_FAILURE`
 - `AFTER_FINALLY`
 
-## Build And Test
+## SpEL-переменные
 
-```bash
-./gradlew clean test
-```
+В шаблонах `message` и `condition` доступны:
+- `#args`, `#p0..`, `#a0..`
+- `#result`
+- `#ex`
+- `#methodName`
+- `#className`
+- именованные параметры метода (при `-parameters`)
 
-## Run Samples
+## Примеры использования
 
-```bash
-export TELEGRAM_BOT_TOKEN=...
-export TELEGRAM_BOT_USERNAME=...
-export TELEGRAM_CHAT_ID=123456789
-./gradlew :sample-boot2-app:bootRun
-./gradlew :sample-boot3-app:bootRun
-```
-
-Without token/username/chat-id samples still start, notifier beans stay disabled by condition.
-
-## Advanced Examples
-
-### Success + Failure Notifications For One Operation
+Уведомление до, после успеха и при ошибке:
 
 ```java
 @Service
 public class PaymentService {
     @TelegramNotify(
-        message = "'Payment started: id=' + #paymentId + ', amount=' + #amount",
-        when = NotifyWhen.BEFORE,
-        condition = "#amount > 0"
+            message = "'Старт платежа id=' + #paymentId + ', amount=' + #amount",
+            when = NotifyWhen.BEFORE
     )
     @TelegramNotify(
-        message = "'Payment SUCCESS: id=' + #paymentId + ', result=' + #result",
-        when = NotifyWhen.AFTER_SUCCESS,
-        parseMode = ParseMode.HTML
+            message = "'Платеж OK id=' + #paymentId + ', result=' + #result",
+            when = NotifyWhen.AFTER_SUCCESS,
+            parseMode = ParseMode.HTML
     )
     @TelegramNotify(
-        message = "'Payment FAILED: id=' + #paymentId + ', ex=' + #ex.message",
-        when = NotifyWhen.AFTER_FAILURE,
-        errorPolicy = ErrorPolicy.LOG_ONLY
+            message = "'Платеж FAIL id=' + #paymentId + ', ex=' + #ex.message",
+            when = NotifyWhen.AFTER_FAILURE,
+            errorPolicy = ErrorPolicy.LOG_ONLY
     )
     public String pay(String paymentId, long amount) {
         return "OK";
@@ -124,90 +136,49 @@ public class PaymentService {
 }
 ```
 
-### Notify Only On Business Condition
+Переопределение chat id на уровне метода:
 
 ```java
 @TelegramNotify(
-    message = "'High latency detected: ' + #result + ' ms'",
-    condition = "#result != null && #result > 500",
-    when = NotifyWhen.AFTER_SUCCESS
-)
-public Long measureLatency() {
-    return externalCallLatency();
-}
-```
-
-### Use Named Parameters In SpEL
-
-`-parameters` is enabled in this project, so method argument names are available:
-
-```java
-@TelegramNotify(
-    message = "'Order=' + #orderId + ', user=' + #userId + ', result=' + #result",
-    condition = "#orderId != null && #result != null"
-)
-public String process(String orderId, Long userId) {
-    return "DONE";
-}
-```
-
-### Override Chat IDs Per Method
-
-```java
-@TelegramNotify(
-    message = "'Critical alert: ' + #p0",
-    chatIds = {123456789L, 987654321L},
-    when = NotifyWhen.AFTER_FAILURE
+        message = "'Критическая ошибка: ' + #p0",
+        chatIds = {-1001234567890L, -1009876543210L},
+        when = NotifyWhen.AFTER_FAILURE
 )
 public void critical(String msg) {
     throw new IllegalStateException(msg);
 }
 ```
 
-### Custom Template Engine Bean
+## Локальный запуск и тесты
 
-```java
-@Configuration
-public class NotifierCustomization {
-    @Bean
-    public TemplateEngine templateEngine() {
-        return (template, ctx) -> "[env=prod] " + template;
-    }
-}
+Проверка проекта:
+
+```bash
+./gradlew clean test
 ```
 
-`@ConditionalOnMissingBean` in starter will keep your custom bean.
+Запуск sample-приложений:
 
-### Custom Sender Bean (Mock / Queue / Proxy)
+```bash
+export TELEGRAM_BOT_TOKEN=...
+export TELEGRAM_BOT_USERNAME=...
+export TELEGRAM_CHAT_ID=-1001234567890
 
-```java
-@Configuration
-public class NotifierCustomization {
-    @Bean
-    public TelegramSender telegramSender() {
-        return (chatId, message, parseMode) -> {
-            // route to queue, audit, or stub in tests
-        };
-    }
-}
+./gradlew :sample-boot2-app:bootRun
+./gradlew :sample-boot3-app:bootRun
 ```
 
-### Async Delivery Tuning
+Без обязательных параметров приложения стартуют, но notifier-бин не создается.
 
-```yaml
-telegram:
-  notifier:
-    async-enabled: true
-    executor-core-pool-size: 2
-    executor-max-pool-size: 8
-    executor-queue-capacity: 1000
-```
+## CI/CD (GitLab)
 
-When `async-enabled=true`, dispatcher uses `telegramNotifierExecutor`.
+Файл: `.gitlab-ci.yml`
 
-## Publishing
+- `build` stage: `./gradlew --no-daemon clean test`
+- `publish` stage: только по тегу `vX.Y.Z`, публикация двух starter-артефактов в приватный Maven
 
-GitLab CI has:
-
-- `build` stage: `./gradlew clean test`
-- `publish` stage: runs only on tag `vX.Y.Z` and publishes only two starter artifacts via JReleaser + Maven Central Portal user token.
+Переменные для публикации:
+- `MAVEN_REPO_URL`
+- `MAVEN_REPO_USERNAME`
+- `MAVEN_REPO_PASSWORD`
+- `MAVEN_REPO_ALLOW_INSECURE` (`true/false`, опционально)

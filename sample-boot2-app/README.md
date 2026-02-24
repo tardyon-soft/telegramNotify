@@ -1,21 +1,29 @@
 # sample-boot2-app
 
-Demo application for Spring Boot `2.3.0.RELEASE`.
+Пример приложения для Spring Boot `2.3.0.RELEASE` (Java `11`).
 
-Run:
+Назначение:
+- показать работу `@TelegramNotify` в режимах `BEFORE/AFTER_SUCCESS/AFTER_FAILURE/AFTER_FINALLY`
+- показать использование SpEL-переменных `#p0`, `#result`, `#ex`
+- проверить, что при пустых обязательных настройках авто-конфигурация корректно отключается
+
+Переменные окружения:
+- `TELEGRAM_BOT_TOKEN`
+- `TELEGRAM_BOT_USERNAME`
+- `TELEGRAM_CHAT_ID`
+
+Запуск:
 
 ```bash
 export TELEGRAM_BOT_TOKEN=...
 export TELEGRAM_BOT_USERNAME=...
-export TELEGRAM_CHAT_ID=123456789
+export TELEGRAM_CHAT_ID=-1001234567890
+
 ./gradlew :sample-boot2-app:bootRun
 ```
 
-Demo service:
-
-- `DemoService#beforeNotification(String,long)` -> `NotifyWhen.BEFORE` + condition
-- `DemoService#successNotification(String)` -> `NotifyWhen.AFTER_SUCCESS` + `#result`
-- `DemoService#failureNotification(String)` -> `NotifyWhen.AFTER_FAILURE` + `#ex.message`
-- `DemoService#finallyNotification(String,boolean)` -> `NotifyWhen.AFTER_FINALLY`
-
-Runner calls all scenarios and intentionally triggers failures to demonstrate failure/finally notifications.
+В `DemoService`:
+- `beforeNotification(String,long)` - уведомление до выполнения
+- `successNotification(String)` - уведомление после успешного результата
+- `failureNotification(String)` - уведомление при исключении
+- `finallyNotification(String,boolean)` - уведомление в `finally`

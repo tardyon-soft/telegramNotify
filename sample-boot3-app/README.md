@@ -1,21 +1,29 @@
 # sample-boot3-app
 
-Demo application for Spring Boot `3.4.1-SNAPSHOT`.
+Пример приложения для Spring Boot `3.4.1-SNAPSHOT` (Java `21`).
 
-Run:
+Назначение:
+- показать тот же API, что и в Boot2-стартере
+- продемонстрировать режимы `NotifyWhen` и расширенные настройки (`parse-mode`, `error-policy`, override `chatIds`)
+- проверить включение/выключение auto-configuration по condition
+
+Переменные окружения:
+- `TELEGRAM_BOT_TOKEN`
+- `TELEGRAM_BOT_USERNAME`
+- `TELEGRAM_CHAT_ID`
+
+Запуск:
 
 ```bash
 export TELEGRAM_BOT_TOKEN=...
 export TELEGRAM_BOT_USERNAME=...
-export TELEGRAM_CHAT_ID=123456789
+export TELEGRAM_CHAT_ID=-1001234567890
+
 ./gradlew :sample-boot3-app:bootRun
 ```
 
-Demo service:
-
-- `DemoService#beforeNotification(String,long)` -> `NotifyWhen.BEFORE` + condition
-- `DemoService#successNotification(String)` -> `NotifyWhen.AFTER_SUCCESS` + HTML parse mode
-- `DemoService#failureNotification(String)` -> `NotifyWhen.AFTER_FAILURE` + `ErrorPolicy.LOG_ONLY`
-- `DemoService#finallyNotification(String,boolean)` -> `NotifyWhen.AFTER_FINALLY` + per-method `chatIds` override
-
-Runner executes all scenarios and includes forced failure paths for demonstration.
+В `DemoService`:
+- `beforeNotification(String,long)` - `NotifyWhen.BEFORE`
+- `successNotification(String)` - `NotifyWhen.AFTER_SUCCESS` + `ParseMode.HTML`
+- `failureNotification(String)` - `NotifyWhen.AFTER_FAILURE` + `ErrorPolicy.LOG_ONLY`
+- `finallyNotification(String,boolean)` - `NotifyWhen.AFTER_FINALLY` + override chat id

@@ -1,24 +1,32 @@
 # notifier-core
 
-Core contracts:
+Базовый модуль библиотеки с API и доменной логикой уведомлений.
 
-- annotations: `@TelegramNotify`, `NotifyWhen`
-- invocation context: `MethodInvocationContext`
-- dispatch model: `NotificationRequest`, `NotificationOptions`, `ParseMode`, `ErrorPolicy`
-- dispatcher: `TelegramNotificationDispatcher`
-- sender abstraction: `TelegramSender`
-- templating abstraction: `TemplateEngine`
+Содержит:
+- аннотации `@TelegramNotify`, `NotifyWhen`
+- контекст вызова `MethodInvocationContext`
+- модель отправки `NotificationRequest`, `NotificationOptions`
+- enums `ParseMode`, `ErrorPolicy`
+- диспетчер `TelegramNotificationDispatcher`
+- контракты `NotifierConfig`, `TelegramSender`, `TemplateEngine`
 
-Example dispatcher usage:
+Поведение `TelegramNotificationDispatcher`:
+- вычисляет `condition` и `message` через `TemplateEngine`
+- не отправляет сообщение, если `condition=false` или текст пустой
+- берет `chatIds` из аннотации, иначе из `NotifierConfig`
+- поддерживает async при `asyncEnabled=true` и наличии `Executor`
+- обрабатывает ошибки по `ErrorPolicy` (`LOG_ONLY` или `THROW`)
+
+Пример:
 
 ```java
 NotificationRequest request = NotificationRequest.of(
-    "'Hello ' + #p0",
-    "true",
-    null,
-    ParseMode.HTML,
-    ErrorPolicy.LOG_ONLY,
-    new MethodInvocationContext(target, method, args, result, null)
+        "'Операция ' + #methodName + ', result=' + #result",
+        "#result != null",
+        null,
+        ParseMode.HTML,
+        ErrorPolicy.LOG_ONLY,
+        new MethodInvocationContext(target, method, args, result, null)
 );
 dispatcher.dispatch(request);
 ```

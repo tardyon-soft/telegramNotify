@@ -1,17 +1,15 @@
 # notifier-boot2-starter
 
-Auto-configuration starter for Spring Boot `2.3.x` (Java 11).
+Стартер автоконфигурации для Spring Boot `2.3.x` (Java `11`).
 
-Published artifact:
+Публикуемый артефакт:
+- `ru.wildred:telegram-notifier-boot2-starter`
 
-- `ru.tardyon:telegram-notifier-boot2-starter`
-
-Auto-configuration includes:
-
+Что поднимает автоконфигурация:
 - `TelegramNotifierProperties` (`telegram.notifier.*`)
 - `Boot2NotifierConfigAdapter`
 - `TelegramNotifierEnabledCondition`
-- beans (all `@ConditionalOnMissingBean`):
+- бины (`@ConditionalOnMissingBean`):
   - `NotifierConfig`
   - `TemplateEngine` (SpEL)
   - `TaskExecutor` (`telegramNotifierExecutor`)
@@ -19,38 +17,31 @@ Auto-configuration includes:
   - `TelegramNotificationDispatcher`
   - `TelegramNotifyAspect`
 
-Activation conditions:
+Условия активации:
+- `telegram.notifier.enabled=true` (или свойство отсутствует)
+- заполнены `token`, `username`, `chat-ids`
 
-- `telegram.notifier.enabled=true` (or missing)
-- `token` present
-- `username` present
-- `chat-ids` not empty
+Поддерживаемые форматы конфигурации:
+- плоский (`token`, `username`, `chat-ids`, `async-enabled`)
+- вложенный (`bot.token`, `bot.username`, `targets.chat-ids`, `async.enabled`)
 
-Example config:
+Рекомендуемый пример:
 
 ```yaml
 telegram:
   notifier:
     enabled: true
-    token: ${TELEGRAM_BOT_TOKEN:}
-    username: ${TELEGRAM_BOT_USERNAME:}
-    chat-ids: ${TELEGRAM_CHAT_ID:}
+    bot:
+      token: ${TELEGRAM_BOT_TOKEN:}
+      username: ${TELEGRAM_BOT_USERNAME:}
+    targets:
+      chat-ids:
+        - ${TELEGRAM_CHAT_ID:}
     parse-mode: HTML
     disable-web-page-preview: true
-    async-enabled: true
+    async:
+      enabled: true
     executor-core-pool-size: 2
     executor-max-pool-size: 4
     executor-queue-capacity: 500
-```
-
-Override default beans:
-
-```java
-@Configuration
-public class NotifierOverrides {
-    @Bean
-    public TelegramSender telegramSender() {
-        return (chatId, message, parseMode) -> {};
-    }
-}
 ```

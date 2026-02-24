@@ -9,8 +9,7 @@ telegram:
       token: ${TELEGRAM_BOT_TOKEN:}
       username: ${TELEGRAM_BOT_USERNAME:}
     targets:
-      chat-ids:
-        - ${TELEGRAM_CHAT_ID:}
+      chat-ids: ${TELEGRAM_CHAT_ID:}
     parse-mode: HTML
     disable-web-page-preview: true
     async:

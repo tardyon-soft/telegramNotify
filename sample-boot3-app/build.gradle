@@ -21,7 +21,7 @@ dependencies {
 }
 
 application {
-    mainClass = 'ru.wildred.telegram.notifier.sample.boot3.SampleBoot3Application'
+    mainClass = 'ru.tardyon.maven.telegram.notifier.sample.boot3.SampleBoot3Application'
 }
 
 tasks.register('bootRun', JavaExec) {

@@ -4,13 +4,19 @@ plugins {
 
 description = 'Sample application for telegram-notifier Boot 2 starter'
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
 dependencies {
     implementation "org.springframework.boot:spring-boot-starter:${springBoot2Version}"
     implementation project(path: ':notifier-boot2-starter', configuration: 'default')
 }
 
 application {
-    mainClass = 'ru.wildred.telegram.notifier.sample.boot2.SampleBoot2Application'
+    mainClass = 'ru.tardyon.maven.telegram.notifier.sample.boot2.SampleBoot2Application'
 }
 
 tasks.register('bootRun', JavaExec) {
