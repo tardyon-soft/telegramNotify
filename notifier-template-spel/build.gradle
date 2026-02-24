@@ -1,0 +1,9 @@
+description = 'SpEL template support for telegram notifier'
+
+dependencies {
+    implementation 'org.springframework:spring-expression'
+    implementation 'org.springframework:spring-core'
+
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}

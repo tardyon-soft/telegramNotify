@@ -1,0 +1,68 @@
+apply plugin: 'maven-publish'
+
+description = 'Spring Boot 2 starter for telegram notifier'
+
+base {
+    archivesName = 'telegram-notifier-boot2-starter'
+}
+
+dependencies {
+    compileOnly project(':notifier-core')
+    compileOnly project(':notifier-template-spel')
+    compileOnly project(':notifier-spring-aop')
+    compileOnly project(':notifier-telegrambots-adapter')
+
+    api("org.telegram:telegrambots:${telegrambotsVersion}") {
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+    }
+    api "org.aspectj:aspectjrt:${aspectjVersion}"
+    runtimeOnly "org.aspectj:aspectjweaver:${aspectjVersion}"
+
+    testRuntimeOnly project(':notifier-core')
+    testRuntimeOnly project(':notifier-template-spel')
+    testRuntimeOnly project(':notifier-spring-aop')
+    testRuntimeOnly project(':notifier-telegrambots-adapter')
+
+    compileOnly "org.springframework.boot:spring-boot-autoconfigure:${springBoot2Version}"
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:${springBoot2Version}"
+
+    testImplementation "org.springframework.boot:spring-boot-autoconfigure:${springBoot2Version}"
+    testImplementation "org.springframework.boot:spring-boot-test:${springBoot2Version}"
+    testImplementation "org.springframework:spring-context:${springFrameworkVersion}"
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.assertj:assertj-core:3.26.3'
+}
+
+tasks.named('jar', Jar) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from(project(':notifier-core').sourceSets.main.output)
+    from(project(':notifier-template-spel').sourceSets.main.output)
+    from(project(':notifier-spring-aop').sourceSets.main.output)
+    from(project(':notifier-telegrambots-adapter').sourceSets.main.output)
+}
+
+publishing {
+    publications {
+        boot2Starter(MavenPublication) {
+            from components.java
+            artifactId = 'telegram-notifier-boot2-starter'
+        }
+    }
+
+    repositories {
+        maven {
+            name = 'private'
+            url = uri(System.getenv('MAVEN_REPO_URL') ?: rootProject.layout.buildDirectory.dir('private-deploy').get().asFile.toURI())
+            allowInsecureProtocol = Boolean.parseBoolean(System.getenv('MAVEN_REPO_ALLOW_INSECURE') ?: 'false')
+            credentials {
+                username = System.getenv('MAVEN_REPO_USERNAME')
+                password = System.getenv('MAVEN_REPO_PASSWORD')
+            }
+        }
+        maven {
+            name = 'staging'
+            url = rootProject.layout.buildDirectory.dir('staging-deploy')
+        }
+    }
+}

@@ -1,0 +1,18 @@
+spring:
+  main:
+    web-application-type: none
+
+telegram:
+  notifier:
+    enabled: true
+    bot:
+      token: ${TELEGRAM_BOT_TOKEN:}
+      username: ${TELEGRAM_BOT_USERNAME:}
+    targets:
+      chat-ids:
+        - ${TELEGRAM_CHAT_ID:}
+    parse-mode: HTML
+    disable-web-page-preview: true
+    async:
+      enabled: true
+    error-policy: LOG_ONLY

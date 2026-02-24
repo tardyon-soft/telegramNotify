@@ -1,0 +1,19 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+        maven { url = uri('https://repo.spring.io/milestone') }
+        maven { url = uri('https://repo.spring.io/snapshot') }
+    }
+}
+
+rootProject.name = 'telegram-notifier'
+
+include 'notifier-core'
+include 'notifier-template-spel'
+include 'notifier-spring-aop'
+include 'notifier-telegrambots-adapter'
+include 'notifier-boot2-starter'
+include 'notifier-boot3-starter'
+include 'sample-boot2-app'
+include 'sample-boot3-app'

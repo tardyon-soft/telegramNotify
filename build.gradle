@@ -1,0 +1,78 @@
+plugins {
+    id 'base'
+    id 'org.jreleaser' version '1.17.0'
+}
+
+group = 'ru.tardyon'
+version = '0.1.0-SNAPSHOT'
+
+allprojects {
+    group = rootProject.group
+    version = rootProject.version
+
+    repositories {
+        mavenCentral()
+        maven { url = uri('https://repo.spring.io/milestone') }
+        maven { url = uri('https://repo.spring.io/snapshot') }
+    }
+}
+
+subprojects {
+    apply plugin: 'java-library'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(11)
+        }
+        withJavadocJar()
+        withSourcesJar()
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.compilerArgs += '-parameters'
+    }
+
+    tasks.withType(Test).configureEach {
+        useJUnitPlatform()
+    }
+}
+
+project(':notifier-template-spel') {
+    dependencies {
+        constraints {
+            implementation "org.springframework:spring-expression:${springFrameworkVersion}"
+            implementation "org.springframework:spring-core:${springFrameworkVersion}"
+        }
+        api project(':notifier-core')
+    }
+}
+
+project(':notifier-spring-aop') {
+    dependencies {
+        constraints {
+            implementation "org.springframework:spring-aop:${springFrameworkVersion}"
+            implementation "org.springframework:spring-context:${springFrameworkVersion}"
+            implementation "org.aspectj:aspectjrt:${aspectjVersion}"
+            implementation "org.aspectj:aspectjweaver:${aspectjVersion}"
+        }
+        api project(':notifier-core')
+    }
+}
+
+project(':notifier-telegrambots-adapter') {
+    dependencies {
+        api project(':notifier-core')
+    }
+}
+
+project(':notifier-boot3-starter') {
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.release = 21
+    }
+}

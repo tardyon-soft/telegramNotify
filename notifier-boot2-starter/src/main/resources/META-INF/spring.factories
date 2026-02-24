@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+ru.wildred.telegram.notifier.boot2.TelegramNotifierAutoConfiguration

@@ -1,0 +1,33 @@
+plugins {
+    id 'application'
+}
+
+description = 'Sample application for telegram-notifier Boot 3 starter'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 21
+}
+
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter:${springBoot3Version}"
+    implementation "org.springframework.boot:spring-boot-starter-aop:${springBoot3Version}"
+    implementation project(path: ':notifier-boot3-starter', configuration: 'default')
+}
+
+application {
+    mainClass = 'ru.wildred.telegram.notifier.sample.boot3.SampleBoot3Application'
+}
+
+tasks.register('bootRun', JavaExec) {
+    group = 'application'
+    description = 'Run sample Boot 3 application'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = application.mainClass
+    systemProperty 'spring.main.web-application-type', 'none'
+}

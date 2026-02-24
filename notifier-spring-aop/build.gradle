@@ -1,0 +1,12 @@
+description = 'Spring AOP integration for telegram notifier'
+
+dependencies {
+    implementation 'org.springframework:spring-aop'
+    implementation 'org.springframework:spring-context'
+    implementation 'org.aspectj:aspectjrt'
+
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.springframework:spring-context'
+    testRuntimeOnly 'org.aspectj:aspectjweaver'
+}

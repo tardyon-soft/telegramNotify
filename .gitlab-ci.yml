@@ -1,0 +1,24 @@
+stages:
+  - build
+  - publish
+
+build:
+  stage: build
+  script:
+    - ./gradlew --no-daemon clean test
+
+publish:
+  stage: publish
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'
+      when: on_success
+    - when: never
+  script:
+    - ./gradlew --no-daemon clean test
+    - ./gradlew --no-daemon :notifier-boot2-starter:publishBoot2StarterPublicationToPrivateRepository
+    - ./gradlew --no-daemon :notifier-boot3-starter:publishBoot3StarterPublicationToPrivateRepository
+  variables:
+    MAVEN_REPO_URL: $MAVEN_REPO_URL
+    MAVEN_REPO_USERNAME: $MAVEN_REPO_USERNAME
+    MAVEN_REPO_PASSWORD: $MAVEN_REPO_PASSWORD
+    MAVEN_REPO_ALLOW_INSECURE: $MAVEN_REPO_ALLOW_INSECURE
