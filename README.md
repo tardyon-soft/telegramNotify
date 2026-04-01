@@ -3,8 +3,8 @@
 Библиотека для отправки уведомлений в Telegram через аннотации в Spring.
 
 Публикуемые артефакты:
-- `ru.wildred:telegram-notifier-boot2-starter` (Spring Boot `2.3.x`, Java `11`)
-- `ru.wildred:telegram-notifier-boot3-starter` (Spring Boot `3.4.x`, Java `21`)
+- `ru.tardyon.maven:telegram-notifier-boot2-starter` (Spring Boot `2.3.x`, Java `11`)
+- `ru.tardyon.maven:telegram-notifier-boot3-starter` (Spring Boot `3.4.x`, Java `21`)
 
 Внутренние модули (`core`, `spel`, `spring-aop`, `telegrambots-adapter`) встраиваются внутрь starter JAR.
 
@@ -26,13 +26,13 @@
 Boot 2:
 
 ```groovy
-implementation "ru.wildred:telegram-notifier-boot2-starter:<version>"
+implementation "ru.tardyon.maven:telegram-notifier-boot2-starter:<version>"
 ```
 
 Boot 3:
 
 ```groovy
-implementation "ru.wildred:telegram-notifier-boot3-starter:<version>"
+implementation "ru.tardyon.maven:telegram-notifier-boot3-starter:<version>"
 ```
 
 ### 2. Настроить `application.yml`

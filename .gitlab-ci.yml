@@ -1,29 +1,64 @@
-image: eclipse-temurin:17-jdk
+image: eclipse-temurin:21-jdk
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'
+    - when: never
 
 stages:
   - build
   - test
-  - deploy
+  - publish
+
+variables:
+  GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=-Xmx2g -Dfile.encoding=UTF-8"
+
+cache:
+  key: "gradle-${CI_PROJECT_ID}"
+  paths:
+    - .gradle/wrapper/
+    - .gradle/caches/
+
+before_script:
+  - chmod +x ./gradlew
 
 build:
   stage: build
   script:
-    - ./gradlew --no-daemon clean assemble -x test
+    - ./gradlew --no-daemon --stacktrace clean assemble
+  rules:
+    - if: $CI_COMMIT_BRANCH
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'
 
-test:
+unit_tests:
   stage: test
+  needs: ["build"]
   script:
-    - ./gradlew --no-daemon test
+    - ./gradlew --no-daemon --stacktrace test
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - "**/build/test-results/test/*.xml"
+    paths:
+      - "**/build/reports/tests/test/**"
+  rules:
+    - if: $CI_COMMIT_BRANCH
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'
 
-deploy:
-  stage: deploy
-  when: manual
-  allow_failure: false
+publish_maven_central:
+  stage: publish
+  needs: ["unit_tests"]
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'
   script:
-    - ./gradlew --no-daemon :notifier-boot2-starter:publishBoot2StarterPublicationToPrivateRepository
-    - ./gradlew --no-daemon :notifier-boot3-starter:publishBoot3StarterPublicationToPrivateRepository
-  variables:
-    MAVEN_REPO_URL: $MAVEN_REPO_URL
-    MAVEN_REPO_USERNAME: $MAVEN_REPO_USERNAME
-    MAVEN_REPO_PASSWORD: $MAVEN_REPO_PASSWORD
-    MAVEN_REPO_ALLOW_INSECURE: $MAVEN_REPO_ALLOW_INSECURE
+    - export RELEASE_VERSION="${CI_COMMIT_TAG#v}"
+    - echo "Publishing version ${RELEASE_VERSION}"
+    - test -n "$JRELEASER_MAVENCENTRAL_USERNAME" || (echo "JRELEASER_MAVENCENTRAL_USERNAME is required" && exit 1)
+    - test -n "$JRELEASER_MAVENCENTRAL_PASSWORD" || (echo "JRELEASER_MAVENCENTRAL_PASSWORD is required" && exit 1)
+    - test -n "$JRELEASER_GPG_PUBLIC_KEY" || (echo "JRELEASER_GPG_PUBLIC_KEY is required" && exit 1)
+    - test -n "$JRELEASER_GPG_SECRET_KEY" || (echo "JRELEASER_GPG_SECRET_KEY is required" && exit 1)
+    - test -n "$JRELEASER_GPG_PASSPHRASE" || (echo "JRELEASER_GPG_PASSPHRASE is required" && exit 1)
+    - ./gradlew --no-daemon --stacktrace --no-configuration-cache clean publish jreleaserDeploy

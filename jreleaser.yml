@@ -6,8 +6,9 @@ signing:
   active: ALWAYS
   armored: true
   mode: MEMORY
-  secretKey: "{{ env.GPG_PRIVATE_KEY }}"
-  passphrase: "{{ env.GPG_PASSPHRASE }}"
+  publicKey: "{{ env.JRELEASER_GPG_PUBLIC_KEY }}"
+  secretKey: "{{ env.JRELEASER_GPG_SECRET_KEY }}"
+  passphrase: "{{ env.JRELEASER_GPG_PASSPHRASE }}"
 
 deploy:
   maven:
@@ -17,5 +18,5 @@ deploy:
         url: "https://central.sonatype.com/api/v1/publisher"
         stagingRepositories:
           - "build/staging-deploy"
-        username: "{{ env.MAVENCENTRAL_USERNAME }}"
-        password: "{{ env.MAVENCENTRAL_PASSWORD }}"
+        username: "{{ env.JRELEASER_MAVENCENTRAL_USERNAME }}"
+        password: "{{ env.JRELEASER_MAVENCENTRAL_PASSWORD }}"

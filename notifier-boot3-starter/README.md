@@ -3,7 +3,7 @@
 Стартер автоконфигурации для Spring Boot `3.4.x` (Java `21`).
 
 Публикуемый артефакт:
-- `ru.wildred:telegram-notifier-boot3-starter`
+- `ru.tardyon.maven:telegram-notifier-boot3-starter`
 
 Особенности Boot 3:
 - использует `@AutoConfiguration`

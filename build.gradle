@@ -3,8 +3,18 @@ plugins {
     id 'org.jreleaser' version '1.17.0'
 }
 
-group = 'ru.tardyon'
+group = 'ru.tardyon.maven'
 version = '0.1.0-SNAPSHOT'
+
+tasks.register('deployRelease') {
+    group = 'publishing'
+    description = 'Publishes starter artifacts to staging repository and runs JReleaser deploy.'
+    dependsOn(
+            ':notifier-boot2-starter:publishBoot2StarterPublicationToStagingRepository',
+            ':notifier-boot3-starter:publishBoot3StarterPublicationToStagingRepository',
+            'jreleaserDeploy'
+    )
+}
 
 allprojects {
     group = rootProject.group

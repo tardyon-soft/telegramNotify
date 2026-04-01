@@ -3,7 +3,7 @@
 Стартер автоконфигурации для Spring Boot `2.3.x` (Java `11`).
 
 Публикуемый артефакт:
-- `ru.wildred:telegram-notifier-boot2-starter`
+- `ru.tardyon.maven:telegram-notifier-boot2-starter`
 
 Что поднимает автоконфигурация:
 - `TelegramNotifierProperties` (`telegram.notifier.*`)
