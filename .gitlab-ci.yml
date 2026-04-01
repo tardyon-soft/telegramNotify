@@ -22,6 +22,9 @@ cache:
     - .gradle/caches/
 
 before_script:
+  - apt-get update
+  - apt-get install -y openjdk-11-jdk
+  - java -version
   - chmod +x ./gradlew
 
 build:
