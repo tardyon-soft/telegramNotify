@@ -58,15 +58,6 @@ publishing {
 
     repositories {
         maven {
-            name = 'private'
-            url = uri(System.getenv('MAVEN_REPO_URL') ?: rootProject.layout.buildDirectory.dir('private-deploy').get().asFile.toURI())
-            allowInsecureProtocol = Boolean.parseBoolean(System.getenv('MAVEN_REPO_ALLOW_INSECURE') ?: 'false')
-            credentials {
-                username = System.getenv('MAVEN_REPO_USERNAME')
-                password = System.getenv('MAVEN_REPO_PASSWORD')
-            }
-        }
-        maven {
             name = 'staging'
             url = rootProject.layout.buildDirectory.dir('staging-deploy')
         }
