@@ -1,22 +1,3 @@
 project:
   name: telegram-notifier
   description: Telegram notifier starters for Spring Boot 2 and 3
-
-signing:
-  active: ALWAYS
-  armored: true
-  mode: MEMORY
-  publicKey: "{{ env.JRELEASER_GPG_PUBLIC_KEY }}"
-  secretKey: "{{ env.JRELEASER_GPG_SECRET_KEY }}"
-  passphrase: "{{ env.JRELEASER_GPG_PASSPHRASE }}"
-
-deploy:
-  maven:
-    mavenCentral:
-      sonatype:
-        active: ALWAYS
-        url: "https://central.sonatype.com/api/v1/publisher"
-        stagingRepositories:
-          - "build/staging-deploy"
-        username: "{{ env.JRELEASER_MAVENCENTRAL_USERNAME }}"
-        password: "{{ env.JRELEASER_MAVENCENTRAL_PASSWORD }}"
