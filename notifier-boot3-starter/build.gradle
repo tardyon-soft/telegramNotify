@@ -53,6 +53,29 @@ publishing {
         boot3Starter(MavenPublication) {
             from components.java
             artifactId = 'telegram-notifier-boot3-starter'
+            pom {
+                name = 'telegram-notifier-boot3-starter'
+                description = project.description
+                url = 'https://github.com/tardyon-soft/telegramNotify'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'tardyon'
+                        name = 'Sergej Gerasimov'
+                        email = 'tardyon@yandex.ru'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/tardyon-soft/telegramNotify.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:tardyon-soft/telegramNotify.git'
+                    url = 'https://github.com/tardyon-soft/telegramNotify'
+                }
+            }
         }
     }
 
