@@ -1,23 +1,32 @@
 # notifier-template-spel
 
-Модуль шаблонизатора на Spring SpEL.
+`notifier-template-spel` - реализация `TemplateEngine` на Spring SpEL.
 
-Реализация:
-- `DefaultSpelTemplateEngine implements TemplateEngine`
+Основной класс:
+- `DefaultSpelTemplateEngine`
 
-Возможности:
-- кеш `Expression` по строке выражения
-- переменные в контексте:
-  - `#args`, `#p0..`, `#a0..`
-  - `#result`, `#ex`
-  - `#methodName`, `#className`
-  - именованные параметры метода через `DefaultParameterNameDiscoverer`
-- пустой `condition` трактуется как `true`
-- пустой `message` трактуется как `""`
+## Возможности
 
-Пример:
+- кеширует `Expression` по строке
+- поддерживает `message` и `condition`
+- пустой `condition` трактует как `true`
+- пустой `message` трактует как пустую строку
+- использует `DefaultParameterNameDiscoverer` для имен параметров
+
+## Доступные переменные
+
+- `#args`
+- `#p0`, `#p1`, ...
+- `#a0`, `#a1`, ...
+- `#result`
+- `#ex`
+- `#methodName`
+- `#className`
+- именованные параметры метода при `-parameters`
+
+## Пример
 
 ```java
-String message = engine.render("'Заказ=' + #orderId + ', result=' + #result", ctx);
-boolean shouldSend = engine.evaluateCondition("#result != null", ctx);
+String message = engine.render("'order=' + #orderId + ', result=' + #result", ctx);
+boolean matched = engine.evaluateCondition("#result != null", ctx);
 ```

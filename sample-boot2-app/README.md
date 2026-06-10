@@ -1,18 +1,47 @@
 # sample-boot2-app
 
-Пример приложения для Spring Boot `2.3.0.RELEASE` (Java `11`).
+Пример приложения для Spring Boot `2.3.0.RELEASE` и Java `11`.
 
-Назначение:
-- показать работу `@TelegramNotify` в режимах `BEFORE/AFTER_SUCCESS/AFTER_FAILURE/AFTER_FINALLY`
-- показать использование SpEL-переменных `#p0`, `#result`, `#ex`
-- проверить, что при пустых обязательных настройках авто-конфигурация корректно отключается
+Namespace:
+- `ru.tardyon.maven.telegram.notifier.sample.boot2`
 
-Переменные окружения:
-- `TELEGRAM_BOT_TOKEN`
-- `TELEGRAM_BOT_USERNAME`
-- `TELEGRAM_CHAT_ID`
+## Что показывает пример
 
-Запуск:
+`DemoService` содержит 4 сценария:
+- `beforeNotification(String orderId)` - `NotifyWhen.BEFORE`
+- `successNotification(String orderId)` - `NotifyWhen.AFTER_SUCCESS`
+- `failureNotification(String orderId)` - `NotifyWhen.AFTER_FAILURE`
+- `finallyNotification(String orderId, boolean fail)` - `NotifyWhen.AFTER_FINALLY`
+
+В примерах используются:
+- `#methodName`
+- именованный параметр `#orderId`
+- `#result`
+- `#ex`
+- `ParseMode.MARKDOWN`
+- `ParseMode.HTML`
+
+## Конфигурация
+
+`/Users/sergej/Documents/telegramNotify/sample-boot2-app/src/main/resources/application.yml`
+
+```yaml
+telegram:
+  notifier:
+    enabled: true
+    bot:
+      token: ${TELEGRAM_BOT_TOKEN:}
+      username: ${TELEGRAM_BOT_USERNAME:}
+    targets:
+      chat-ids: ${TELEGRAM_CHAT_ID:}
+    parse-mode: HTML
+    disable-web-page-preview: true
+    async:
+      enabled: true
+    error-policy: LOG_ONLY
+```
+
+## Запуск
 
 ```bash
 export TELEGRAM_BOT_TOKEN=...
@@ -22,8 +51,4 @@ export TELEGRAM_CHAT_ID=-1001234567890
 ./gradlew :sample-boot2-app:bootRun
 ```
 
-В `DemoService`:
-- `beforeNotification(String,long)` - уведомление до выполнения
-- `successNotification(String)` - уведомление после успешного результата
-- `failureNotification(String)` - уведомление при исключении
-- `finallyNotification(String,boolean)` - уведомление в `finally`
+Если обязательные параметры пустые, приложение стартует без notifier-бинов.

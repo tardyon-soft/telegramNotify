@@ -1,8 +1,8 @@
 # notifier-spring-aop
 
-Модуль интеграции с Spring AOP.
+`notifier-spring-aop` - интеграция `telegram-notifier` со Spring AOP.
 
-Содержит:
+Основной класс:
 - `TelegramNotifyAspect`
 
 Pointcut:
@@ -11,13 +11,16 @@ Pointcut:
 @Around("@annotation(ann)")
 ```
 
-Что делает аспект:
-- корректно резолвит `Method` (если сигнатура взята с интерфейса, пробует метод target-класса)
-- поддерживает все режимы `NotifyWhen`:
-  - `BEFORE`
-  - `AFTER_SUCCESS`
-  - `AFTER_FAILURE`
-  - `AFTER_FINALLY`
-- формирует `MethodInvocationContext` и передает его в `TelegramNotificationDispatcher`
+## Что делает аспект
 
-Модуль не зависит от Spring Boot и может использоваться в чистом Spring-контексте.
+- находит `@TelegramNotify` на методе
+- корректно резолвит `Method`, если прокси работает через интерфейс
+- формирует `MethodInvocationContext`
+- вызывает `TelegramNotificationDispatcher`
+- поддерживает:
+  - `NotifyWhen.BEFORE`
+  - `NotifyWhen.AFTER_SUCCESS`
+  - `NotifyWhen.AFTER_FAILURE`
+  - `NotifyWhen.AFTER_FINALLY`
+
+Модуль не зависит от Spring Boot и может использоваться в обычном Spring-контексте с `@EnableAspectJAutoProxy`.

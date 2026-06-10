@@ -1,18 +1,47 @@
 # sample-boot3-app
 
-Пример приложения для Spring Boot `3.4.1-SNAPSHOT` (Java `21`).
+Пример приложения для Spring Boot `3.4.1-SNAPSHOT` и Java `21`.
 
-Назначение:
-- показать тот же API, что и в Boot2-стартере
-- продемонстрировать режимы `NotifyWhen` и расширенные настройки (`parse-mode`, `error-policy`, override `chatIds`)
-- проверить включение/выключение auto-configuration по condition
+Namespace:
+- `ru.tardyon.maven.telegram.notifier.sample.boot3`
 
-Переменные окружения:
-- `TELEGRAM_BOT_TOKEN`
-- `TELEGRAM_BOT_USERNAME`
-- `TELEGRAM_CHAT_ID`
+## Что показывает пример
 
-Запуск:
+`DemoService` содержит 4 сценария:
+- `beforeNotification(String accountId)` - `NotifyWhen.BEFORE`
+- `successNotification(String accountId)` - `NotifyWhen.AFTER_SUCCESS`
+- `failureNotification(String accountId)` - `NotifyWhen.AFTER_FAILURE`
+- `finallyNotification(String accountId, boolean fail)` - `NotifyWhen.AFTER_FINALLY`
+
+В примерах используются:
+- `#methodName`
+- именованный параметр `#accountId`
+- `#result`
+- `#ex`
+- `ParseMode.HTML`
+- `ErrorPolicy.LOG_ONLY`
+
+## Конфигурация
+
+`/Users/sergej/Documents/telegramNotify/sample-boot3-app/src/main/resources/application.yml`
+
+```yaml
+telegram:
+  notifier:
+    enabled: true
+    bot:
+      token: ${TELEGRAM_BOT_TOKEN:}
+      username: ${TELEGRAM_BOT_USERNAME:}
+    targets:
+      chat-ids: ${TELEGRAM_CHAT_ID:}
+    parse-mode: HTML
+    disable-web-page-preview: true
+    async:
+      enabled: true
+    error-policy: LOG_ONLY
+```
+
+## Запуск
 
 ```bash
 export TELEGRAM_BOT_TOKEN=...
@@ -22,8 +51,4 @@ export TELEGRAM_CHAT_ID=-1001234567890
 ./gradlew :sample-boot3-app:bootRun
 ```
 
-В `DemoService`:
-- `beforeNotification(String,long)` - `NotifyWhen.BEFORE`
-- `successNotification(String)` - `NotifyWhen.AFTER_SUCCESS` + `ParseMode.HTML`
-- `failureNotification(String)` - `NotifyWhen.AFTER_FAILURE` + `ErrorPolicy.LOG_ONLY`
-- `finallyNotification(String,boolean)` - `NotifyWhen.AFTER_FINALLY` + override chat id
+Если обязательные параметры пустые, приложение стартует без notifier-бинов.

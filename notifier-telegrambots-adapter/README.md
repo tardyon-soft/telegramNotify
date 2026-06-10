@@ -1,21 +1,36 @@
 # notifier-telegrambots-adapter
 
-Адаптер отправки сообщений в Telegram через библиотеку `telegrambots`.
+`notifier-telegrambots-adapter` - outbound-адаптер отправки сообщений через `org.telegram:telegrambots`.
 
 Основной класс:
-- `DefaultTelegramSender implements TelegramSender`
+- `DefaultTelegramSender`
 
-Поведение:
-- создает `DefaultAbsSender` на основе `NotifierConfig.botToken()`
-- формирует `SendMessage` и отправляет только исходящие сообщения (outbound-only)
-- применяет `parseMode`:
-  - `PLAIN` -> без parse mode
-  - `HTML` -> `HTML`
-  - `MARKDOWN` -> `Markdown`
-  - `MARKDOWN_V2` -> `MarkdownV2`
+## Что делает
+
+- создает `DefaultAbsSender` по `NotifierConfig.botToken()`
+- формирует `SendMessage`
+- применяет `parseMode`
 - применяет `disableWebPagePreview`
 - оборачивает `TelegramApiException` в `TelegramSendException`
-- `sendMany()` отправляет в цикле по всем chat id
+- отправляет несколько сообщений через `sendMany()`
 
-Для тестов:
-- есть дополнительный конструктор с подменяемым `DefaultAbsSender`, поэтому можно тестировать без сети и без реального Telegram API.
+## Proxy
+
+Адаптер использует нативные возможности `telegrambots` через `DefaultBotOptions`:
+- `HTTP`
+- `SOCKS4`
+- `SOCKS5`
+
+Поля для конфигурации:
+- `proxyEnabled()`
+- `proxyType()`
+- `proxyHost()`
+- `proxyPort()`
+- `proxyUsername()`
+- `proxyPassword()`
+
+На текущем этапе гарантированно используется proxy mapping `type/host/port`.
+
+## Тестирование
+
+Для unit-тестов есть конструктор с подменяемым `DefaultAbsSender` и вариант с `TelegramRequestExecutor`, поэтому адаптер можно проверять без реального доступа к Telegram API.
