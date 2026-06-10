@@ -40,6 +40,60 @@ public interface NotifierConfig {
   }
 
   /**
+   * Определяет, включен ли прокси для исходящих запросов к Telegram API.
+   *
+   * @return {@code true}, если прокси включен
+   */
+  default boolean proxyEnabled() {
+    return false;
+  }
+
+  /**
+   * Возвращает тип прокси.
+   *
+   * @return тип прокси или {@code null}, если используется значение по умолчанию
+   */
+  default ProxyType proxyType() {
+    return ProxyType.HTTP;
+  }
+
+  /**
+   * Возвращает адрес proxy-хоста.
+   *
+   * @return имя хоста или IP-адрес прокси
+   */
+  default String proxyHost() {
+    return "";
+  }
+
+  /**
+   * Возвращает порт прокси.
+   *
+   * @return номер порта или {@code 0}, если не задан
+   */
+  default int proxyPort() {
+    return 0;
+  }
+
+  /**
+   * Возвращает имя пользователя для прокси-аутентификации.
+   *
+   * @return имя пользователя или пустая строка
+   */
+  default String proxyUsername() {
+    return "";
+  }
+
+  /**
+   * Возвращает пароль для прокси-аутентификации.
+   *
+   * @return пароль или пустая строка
+   */
+  default String proxyPassword() {
+    return "";
+  }
+
+  /**
    * Определяет, включена ли асинхронная отправка уведомлений.
    *
    * <p>Если true, уведомления будут отправляться в отдельном потоке с использованием

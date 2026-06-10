@@ -7,6 +7,7 @@ import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.tardyon.maven.telegram.notifier.core.config.NotifierConfig;
+import ru.tardyon.maven.telegram.notifier.core.config.ProxyType;
 import ru.tardyon.maven.telegram.notifier.core.dispatch.ParseMode;
 import ru.tardyon.maven.telegram.notifier.core.sender.TelegramSendException;
 import ru.tardyon.maven.telegram.notifier.core.sender.TelegramSender;
@@ -124,12 +125,44 @@ public class DefaultTelegramSender implements TelegramSender {
     if (token == null || token.trim().isEmpty()) {
       throw new IllegalArgumentException("botToken must not be blank");
     }
-    return new DefaultAbsSender(new DefaultBotOptions()) {
+    return new DefaultAbsSender(createBotOptions(config)) {
       @Override
       public String getBotToken() {
         return token;
       }
     };
+  }
+
+  static DefaultBotOptions createBotOptions(NotifierConfig config) {
+    Objects.requireNonNull(config, "config");
+    DefaultBotOptions options = new DefaultBotOptions();
+    if (!config.proxyEnabled()) {
+      return options;
+    }
+    if (config.proxyHost() == null || config.proxyHost().trim().isEmpty()) {
+      return options;
+    }
+    if (config.proxyPort() <= 0) {
+      return options;
+    }
+
+    options.setProxyType(mapProxyType(config.proxyType()));
+    options.setProxyHost(config.proxyHost());
+    options.setProxyPort(config.proxyPort());
+    return options;
+  }
+
+  private static DefaultBotOptions.ProxyType mapProxyType(ProxyType proxyType) {
+    if (proxyType == null) {
+      return DefaultBotOptions.ProxyType.HTTP;
+    }
+    if (proxyType == ProxyType.SOCKS4) {
+      return DefaultBotOptions.ProxyType.SOCKS4;
+    }
+    if (proxyType == ProxyType.SOCKS5) {
+      return DefaultBotOptions.ProxyType.SOCKS5;
+    }
+    return DefaultBotOptions.ProxyType.HTTP;
   }
 
   private String mapParseMode(ParseMode parseMode) {

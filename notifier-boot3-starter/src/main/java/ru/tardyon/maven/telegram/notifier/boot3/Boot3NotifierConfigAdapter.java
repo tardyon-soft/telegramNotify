@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import ru.tardyon.maven.telegram.notifier.core.config.NotifierConfig;
+import ru.tardyon.maven.telegram.notifier.core.config.ProxyType;
 import ru.tardyon.maven.telegram.notifier.core.dispatch.ErrorPolicy;
 import ru.tardyon.maven.telegram.notifier.core.dispatch.ParseMode;
 
@@ -62,6 +63,51 @@ public class Boot3NotifierConfigAdapter implements NotifierConfig {
   @Override
   public boolean disableWebPagePreview() {
     return properties.isDisableWebPagePreview();
+  }
+
+  @Override
+  public boolean proxyEnabled() {
+    return properties.getProxy() != null && properties.getProxy().isEnabled();
+  }
+
+  @Override
+  public ProxyType proxyType() {
+    if (properties.getProxy() == null || properties.getProxy().getType() == null) {
+      return ProxyType.HTTP;
+    }
+    return properties.getProxy().getType();
+  }
+
+  @Override
+  public String proxyHost() {
+    if (properties.getProxy() == null || properties.getProxy().getHost() == null) {
+      return "";
+    }
+    return properties.getProxy().getHost();
+  }
+
+  @Override
+  public int proxyPort() {
+    if (properties.getProxy() == null) {
+      return 0;
+    }
+    return properties.getProxy().getPort();
+  }
+
+  @Override
+  public String proxyUsername() {
+    if (properties.getProxy() == null || properties.getProxy().getUsername() == null) {
+      return "";
+    }
+    return properties.getProxy().getUsername();
+  }
+
+  @Override
+  public String proxyPassword() {
+    if (properties.getProxy() == null || properties.getProxy().getPassword() == null) {
+      return "";
+    }
+    return properties.getProxy().getPassword();
   }
 
   /**

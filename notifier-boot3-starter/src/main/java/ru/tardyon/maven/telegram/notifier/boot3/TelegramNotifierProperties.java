@@ -3,6 +3,7 @@ package ru.tardyon.maven.telegram.notifier.boot3;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import ru.tardyon.maven.telegram.notifier.core.config.ProxyType;
 import ru.tardyon.maven.telegram.notifier.core.dispatch.ErrorPolicy;
 import ru.tardyon.maven.telegram.notifier.core.dispatch.ParseMode;
 
@@ -56,6 +57,11 @@ public class TelegramNotifierProperties {
    * Вложенные свойства конфигурации асинхронного режима.
    */
   private AsyncProperties async = new AsyncProperties();
+
+  /**
+   * Вложенные свойства proxy-конфигурации для исходящих запросов к Telegram API.
+   */
+  private ProxyProperties proxy = new ProxyProperties();
 
   /**
    * Флаг отключения предпросмотра веб-страниц в сообщениях.
@@ -259,6 +265,24 @@ public class TelegramNotifierProperties {
    */
   public void setAsync(AsyncProperties async) {
     this.async = async;
+  }
+
+  /**
+   * Получает вложенные свойства proxy-конфигурации.
+   *
+   * @return объект {@link ProxyProperties}
+   */
+  public ProxyProperties getProxy() {
+    return proxy;
+  }
+
+  /**
+   * Устанавливает вложенные свойства proxy-конфигурации.
+   *
+   * @param proxy объект {@link ProxyProperties}
+   */
+  public void setProxy(ProxyProperties proxy) {
+    this.proxy = proxy;
   }
 
   /**
@@ -493,6 +517,66 @@ public class TelegramNotifierProperties {
      */
     public void setEnabled(boolean enabled) {
       this.enabled = enabled;
+    }
+  }
+
+  /**
+   * Вложенные свойства proxy-соединения.
+   */
+  public static class ProxyProperties {
+    private boolean enabled;
+    private ProxyType type = ProxyType.HTTP;
+    private String host;
+    private int port;
+    private String username;
+    private String password;
+
+    public boolean isEnabled() {
+      return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+      this.enabled = enabled;
+    }
+
+    public ProxyType getType() {
+      return type;
+    }
+
+    public void setType(ProxyType type) {
+      this.type = type;
+    }
+
+    public String getHost() {
+      return host;
+    }
+
+    public void setHost(String host) {
+      this.host = host;
+    }
+
+    public int getPort() {
+      return port;
+    }
+
+    public void setPort(int port) {
+      this.port = port;
+    }
+
+    public String getUsername() {
+      return username;
+    }
+
+    public void setUsername(String username) {
+      this.username = username;
+    }
+
+    public String getPassword() {
+      return password;
+    }
+
+    public void setPassword(String password) {
+      this.password = password;
     }
   }
 }
