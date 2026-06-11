@@ -2,6 +2,7 @@ package ru.tardyon.maven.telegram.notifier.telegram;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -74,6 +75,23 @@ class DefaultTelegramSenderTest {
         assertEquals(DefaultBotOptions.ProxyType.NO_PROXY, missingPort.getProxyType());
     }
 
+    @Test
+    void createsCustomExecutorForAuthenticatedSocks5Proxy() {
+        DefaultTelegramSender.TelegramRequestExecutor executor =
+            DefaultTelegramSender.createRequestExecutor(authenticatedProxyConfig());
+
+        assertInstanceOf(Socks5TelegramRequestExecutor.class, executor);
+    }
+
+    @Test
+    void keepsDefaultAbsSenderExecutorForHttpProxy() {
+        DefaultTelegramSender.TelegramRequestExecutor executor =
+            DefaultTelegramSender.createRequestExecutor(proxyConfig(ProxyType.HTTP, "127.0.0.1", 8080));
+
+        assertInstanceOf(DefaultTelegramSender.TelegramRequestExecutor.class, executor);
+        assertFalse(executor instanceof Socks5TelegramRequestExecutor);
+    }
+
     private static NotifierConfig config(boolean disablePreview) {
         return new NotifierConfig() {
             @Override
@@ -123,6 +141,50 @@ class DefaultTelegramSenderTest {
             @Override
             public int proxyPort() {
                 return port;
+            }
+        };
+    }
+
+    private static NotifierConfig authenticatedProxyConfig() {
+        return new NotifierConfig() {
+            @Override
+            public java.util.List<Long> defaultChatIds() {
+                return java.util.Collections.emptyList();
+            }
+
+            @Override
+            public String botToken() {
+                return "token";
+            }
+
+            @Override
+            public boolean proxyEnabled() {
+                return true;
+            }
+
+            @Override
+            public ProxyType proxyType() {
+                return ProxyType.SOCKS5;
+            }
+
+            @Override
+            public String proxyHost() {
+                return "127.0.0.1";
+            }
+
+            @Override
+            public int proxyPort() {
+                return 1080;
+            }
+
+            @Override
+            public String proxyUsername() {
+                return "user";
+            }
+
+            @Override
+            public String proxyPassword() {
+                return "secret";
             }
         };
     }

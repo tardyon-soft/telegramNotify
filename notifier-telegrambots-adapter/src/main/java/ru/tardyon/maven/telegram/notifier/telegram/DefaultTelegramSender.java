@@ -34,7 +34,7 @@ public class DefaultTelegramSender implements TelegramSender {
    * @throws IllegalArgumentException если токен бота пустой или отсутствует
    */
   public DefaultTelegramSender(NotifierConfig config) {
-    this(config, createDefaultAbsSender(config));
+    this(config, createRequestExecutor(config));
   }
 
   /**
@@ -125,12 +125,15 @@ public class DefaultTelegramSender implements TelegramSender {
     if (token == null || token.trim().isEmpty()) {
       throw new IllegalArgumentException("botToken must not be blank");
     }
-    return new DefaultAbsSender(createBotOptions(config)) {
-      @Override
-      public String getBotToken() {
-        return token;
-      }
-    };
+    return new DefaultAbsSender(createBotOptions(config), token) {};
+  }
+
+  static TelegramRequestExecutor createRequestExecutor(NotifierConfig config) {
+    Objects.requireNonNull(config, "config");
+    if (requiresCustomSocksExecutor(config)) {
+      return new Socks5TelegramRequestExecutor(config);
+    }
+    return new DefaultAbsSenderRequestExecutor(createDefaultAbsSender(config));
   }
 
   static DefaultBotOptions createBotOptions(NotifierConfig config) {
@@ -150,6 +153,18 @@ public class DefaultTelegramSender implements TelegramSender {
     options.setProxyHost(config.proxyHost());
     options.setProxyPort(config.proxyPort());
     return options;
+  }
+
+  private static boolean requiresCustomSocksExecutor(NotifierConfig config) {
+    return config.proxyEnabled()
+        && config.proxyType() == ProxyType.SOCKS5
+        && hasText(config.proxyHost())
+        && config.proxyPort() > 0
+        && (hasText(config.proxyUsername()) || hasText(config.proxyPassword()));
+  }
+
+  private static boolean hasText(String value) {
+    return value != null && !value.trim().isEmpty();
   }
 
   private static DefaultBotOptions.ProxyType mapProxyType(ProxyType proxyType) {
